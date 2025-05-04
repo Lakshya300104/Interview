@@ -96,7 +96,7 @@ export const mappings = {
   vercel: "vercel",
   "aws amplify": "amplify",
 };
-//
+
 export const interviewer: CreateAssistantDTO = {
   name: "Interviewer",
   firstMessage:
@@ -154,7 +154,7 @@ End the conversation on a polite and positive note.
     ],
   },
 };
-//
+
 export const feedbackSchema = z.object({
   totalScore: z.number(),
   categoryScores: z.tuple([
@@ -188,7 +188,7 @@ export const feedbackSchema = z.object({
   areasForImprovement: z.array(z.string()),
   finalAssessment: z.string(),
 });
-//
+
 export const interviewCovers = [
   "/adobe.png",
   "/amazon.png",
@@ -203,7 +203,7 @@ export const interviewCovers = [
   "/tiktok.png",
   "/yahoo.png",
 ];
-//
+
 export const dummyInterviews: Interview[] = [
   {
     id: "1",
