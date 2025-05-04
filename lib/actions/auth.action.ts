@@ -3,19 +3,15 @@
 import { auth, db } from "@/firebase/admin";
 import { cookies } from "next/headers";
 
-// Session duration (1 week)
 const SESSION_DURATION = 60 * 60 * 24 * 7;
 
-// Set session cookie
 export async function setSessionCookie(idToken: string) {
     const cookieStore = await cookies();
 
-    // Create session cookie
     const sessionCookie = await auth.createSessionCookie(idToken, {
         expiresIn: SESSION_DURATION * 1000, // milliseconds
     });
 
-    // Set cookie in the browser
     cookieStore.set("session", sessionCookie, {
         maxAge: SESSION_DURATION,
         httpOnly: true,
@@ -75,8 +71,8 @@ export async function signIn(params: SignInParams) {
             };
 
         await setSessionCookie(idToken);
-    } catch (error: any) {
-        console.log("", error);
+    } catch (e) {
+        console.log("", e);
 
         return {
             success: false,
@@ -125,4 +121,33 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function isAuthenticated() {
     const user = await getCurrentUser();
     return !!user;
+}
+
+export async function getInterviewByUserId(userId: string):Promise<Interview[]> {
+    const interviews = await db
+        .collection('interviews')
+        .where('userId', '==', userId)
+        .orderBy('createdAt','desc')
+        .get();
+
+    return interviews.docs.map((doc) =>({
+        id: doc.id,
+        ...doc.data()
+    })) as Interview[];
+}
+
+export async function getLatestInterviews(params: GetLatestInterviewsParams):Promise<Interview[]> {
+    const {userId, limit=20} = params;
+    const interviews = await db
+        .collection('interviews')
+        .orderBy('createdAt','desc')
+        .where('finalized', '==', true)
+        .where('userId', '!=', userId)
+        .limit(limit)
+        .get();
+
+    return interviews.docs.map((doc) =>({
+        id: doc.id,
+        ...doc.data()
+    })) as Interview[];
 }

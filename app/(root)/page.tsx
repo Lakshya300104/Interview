@@ -4,8 +4,21 @@ import Link from "next/link";
 import Image from "next/image";
 import {dummyInterviews} from "@/constants";
 import InterviewCard from "@/components/InterviewCard";
+import {getCurrentUser, getInterviewByUserId, getLatestInterviews} from "@/lib/actions/auth.action";
 
-const Page = () => {
+const Page = async () => {
+    
+    const user = await getCurrentUser();
+
+    const [userInterviews,latestInterviews] = await Promise.all([
+        await getInterviewByUserId(user?.id!),
+        await getLatestInterviews({userId: user?.id!}),
+    ])
+
+
+    const hasPastInterviews = userInterviews.length > 0;
+    const hasUpcomingInterviews = latestInterviews.length > 0;
+
     return (
         <>
             <section className="card-cta">
@@ -27,20 +40,28 @@ const Page = () => {
                 <h2>Interviews for You </h2>
 
                 <div className="interviews-section">
-                    {dummyInterviews.map((interview) => (
-                        <InterviewCard { ...interview} key = {interview.id} />
-                    ))}
+                    {hasPastInterviews ?(
+                        userInterviews?.map((interview) => (
+                            <InterviewCard { ...interview} key = {interview.id} />
+                        ))): (
+                        <p>You didn&apos;t take any interview</p>
+                    )
+                    }
 
-                    {/*<p>You didn&apos;t take any interview</p>*/}
+
                 </div>
             </section>
 
             <section className="flex flex-col gap-6 mt-8">
                 <h2>Start an Interview</h2>
                 <div className="interviews-section">
-                    {dummyInterviews.map((interview) => (
-                        <InterviewCard { ...interview} key = {interview.id}/>
-                    ))}
+                    {hasUpcomingInterviews ?(
+                        latestInterviews?.map((interview) => (
+                            <InterviewCard { ...interview} key = {interview.id} />
+                        ))): (
+                        <p>No New interviews available..!!</p>
+                    )
+                    }
                 </div>
             </section>
 
